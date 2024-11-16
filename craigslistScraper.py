@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-def scrape_craigslist_free_items():
-    # URL for the 'free' section in Madison, WI
-    url = "https://madison.craigslist.org/d/free-stuff/search/zip"
+def scrape_craigslist_free_items(location):
+    # Create the Craigslist URL dynamically based on the location
+    url = f"https://{location}.craigslist.org/d/free-stuff/search/zip"
 
     # Send a GET request to fetch the page content
     headers = {
@@ -13,7 +13,7 @@ def scrape_craigslist_free_items():
     response = requests.get(url, headers=headers)
     
     if response.status_code != 200:
-        print(f"Failed to fetch the page: {response.status_code}")
+        print(f"Failed to fetch the page for location '{location}': {response.status_code}")
         return
 
     # Parse the HTML content with BeautifulSoup
@@ -21,7 +21,7 @@ def scrape_craigslist_free_items():
 
     # Find all the listings
     listings = soup.find_all('li', class_='cl-static-search-result')
-    print(f"Number of listings found: {len(listings)}")  # Debugging log
+    print(f"Number of listings found for {location}: {len(listings)}")  # Debugging log
 
     # Extract titles and links
     items = []
@@ -39,11 +39,13 @@ def scrape_craigslist_free_items():
 
     # Save the data to a CSV file
     if items:
+        output_file = f'craigslist_free_items_{location}.csv'
         df = pd.DataFrame(items)
-        df.to_csv('craigslist_free_items.csv', index=False)
-        print("Data saved to craigslist_free_items.csv")
+        df.to_csv(output_file, index=False)
+        print(f"Data saved to {output_file}")
     else:
-        print("No items were found. Check the HTML structure and selectors.")
+        print(f"No items were found for location '{location}'. Check the HTML structure and selectors.")
 
-# Run the scraper
-scrape_craigslist_free_items()
+# Example usage
+location = input("Enter the Craigslist location (e.g., madison, chicago, newyork): ").strip()
+scrape_craigslist_free_items(location)
