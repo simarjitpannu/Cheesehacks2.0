@@ -150,7 +150,7 @@ def get_recipes():
 
         return lab
     
-    image_path_capture = "./Cheesehacks2.0/milkeggs.jpg"
+    image_path_capture = #ENTER IMAGE PATH FOLDER
     items = get_ingredient_list(image_path_capture)
     generated = generation_function(items)
     final_string_ouput = ""
