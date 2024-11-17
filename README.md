@@ -21,7 +21,7 @@ Performs necessary pre-processing (e.g., resizing, normalization) to prepare the
 Receive Recipe Recommendations:
 
 Displays recommended recipes to the user after processing by the backend.
-#2. Backend
+# 2. Backend
 The backend handles ingredient identification and recipe generation using AI and external APIs.
 
 Key Steps:
@@ -36,7 +36,7 @@ Send Recipes Back to Frontend:
 
 Returns the generated recipes to the frontend for display and user interaction.
 
-#Technologies Used
+# Technologies Used
 Frontend:
 
 cv2 (OpenCV) for live video feed and image capture.
@@ -46,7 +46,7 @@ Backend:
 Google Vision API for image-to-ingredient processing.
 FlaxAutoModel (or other LLM frameworks) for generating recipe recommendations.
 
-#How It Works
+# How It Works
 Live Video Feed:
 
 The frontend captures a live video feed of the fridge's contents.
