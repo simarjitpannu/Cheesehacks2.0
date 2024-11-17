@@ -41,6 +41,7 @@ Frontend:
 
 cv2 (OpenCV) for live video feed and image capture.
 PyQt6 for building the graphical user interface.
+
 Backend:
 
 Google Vision API for image-to-ingredient processing.
