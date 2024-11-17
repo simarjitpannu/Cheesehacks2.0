@@ -152,7 +152,6 @@ def get_recipes():
     
     image_path_capture = "./Cheesehacks2.0/milkeggs.jpg"
     items = get_ingredient_list(image_path_capture)
-    items = ["bread","cheese","chicken", "bagel", "ranch"]
     generated = generation_function(items)
     final_string_ouput = ""
     for text in generated:
