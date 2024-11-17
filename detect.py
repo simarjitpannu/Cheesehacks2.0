@@ -1,6 +1,5 @@
 import sys
 import cv2
-import os
 from datetime import datetime
 from PyQt6.QtWidgets import (
     QApplication,
@@ -12,11 +11,12 @@ from PyQt6.QtWidgets import (
     QComboBox,
     QHBoxLayout,
     QTextEdit,
+    QScrollArea,
 )
 from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QTimer, Qt
 
-# Placeholder for get_recipes function, which will be imported in your actual implementation
+
 def get_recipes():
     from transformers import FlaxAutoModelForSeq2SeqLM
     from transformers import AutoTokenizer
@@ -112,18 +112,46 @@ def get_recipes():
         response = client.label_detection(image=image)
         labels = response.label_annotations
 
-        # Print identified labels
-        print("Ingredients identified:")
+        ingredients = [
+        "apple", "banana", "orange", "mango", "strawberry", "blueberry", "raspberry",
+        "pineapple", "kiwi", "watermelon", "peach", "pear", "plum", "cherry", "lemon",
+        "lime", "grapefruit", "fig", "pomegranate", "apricot", "avocado",
+        "potato", "sweet potato", "carrot", "broccoli", "cauliflower", "spinach", "kale",
+        "zucchini", "eggplant", "bell pepper (red, yellow, green)", "onion", "garlic",
+        "ginger", "mushroom", "cucumber", "tomato", "corn", "lettuce", "cabbage",
+        "celery", "asparagus", "green beans", "peas", "radish", "beetroot", "okra",
+        "milk", "butter", "cream", "cheese (cheddar, mozzarella, parmesan, etc.)",
+        "yogurt", "sour cream", "whipping cream", "cottage cheese",
+        "chicken", "beef", "pork", "lamb", "turkey", "duck", "fish (salmon, tuna, cod, etc.)",
+        "shrimp", "crab", "lobster", "scallops", "clams", "egg", "eggs"
+        "chicken egg", "duck egg", "quail egg",
+        "rice (white, brown, jasmine, basmati, etc.)", "quinoa", "oats", "barley", "couscous",
+        "lentils (red, green, yellow)", "chickpeas", "black beans", "kidney beans",
+        "pinto beans", "green peas",
+        "salt", "black pepper", "paprika", "turmeric", "cinnamon", "nutmeg", "cloves",
+        "basil", "oregano", "thyme", "rosemary", "parsley", "dill", "cilantro", "mint",
+        "bay leaf", "chili powder", "curry powder",
+        "olive oil", "vegetable oil", "canola oil", "coconut oil", "avocado oil",
+        "butter", "ghee", "lard",
+        "almonds", "cashews", "walnuts", "peanuts", "pistachios", "sunflower seeds",
+        "chia seeds", "flaxseeds", "pumpkin seeds",
+        "flour (all-purpose, whole wheat, almond, etc.)", "sugar (white, brown, powdered)",
+        "baking powder", "baking soda", "yeast", "cocoa powder", "vanilla extract",
+        "soy sauce", "tomato ketchup", "mayonnaise", "mustard", "vinegar (white, apple cider, balsamic)",
+        "barbecue sauce", "hot sauce", "honey", "maple syrup",
+        "bread", "tortillas", "pasta (spaghetti, penne, fettuccine, etc.)",
+        "noodles (ramen, rice noodles, etc.)", "tofu", "tempeh", "coconut milk",
+        "chocolate (dark, milk, white)", "jam or jelly", "pickles"]
+
         lab = []
         for label in labels:
-            lab.append(label.description)
-        
+            if label.description.lower() in ingredients:
+                lab.append(label.description)
+
         return lab
     
     image_path_capture = "./captured_image_camera_0_hq.jpg"
     items = get_ingredient_list(image_path_capture)
-    print(items)
-    items = ["chicken","beef","macaroni", "cheese"]
     generated = generation_function(items)
     final_string_ouput = ""
     for text in generated:
@@ -156,17 +184,19 @@ class WebcamCaptureApp(QMainWindow):
         super().__init__()
 
         # Set up the main window
-        self.setWindowTitle("Webcam Capture App with Recipe Generator")
-        self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle("Recipe Generator with Webcam Capture")
+        self.setGeometry(100, 100, 900, 700)
 
         # Initialize OpenCV video capture
-        self.cap = None  # Will be set later when a camera is selected
+        self.cap = None
         self.current_camera_index = 0
 
         # Main widget and layout
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.layout = QVBoxLayout(self.central_widget)
+        self.layout.setContentsMargins(10, 10, 10, 10)
+        self.layout.setSpacing(10)
 
         # Top layout for dropdown and refresh button
         top_layout = QHBoxLayout()
@@ -175,29 +205,42 @@ class WebcamCaptureApp(QMainWindow):
         self.camera_dropdown.currentIndexChanged.connect(self.change_camera)
         top_layout.addWidget(self.camera_dropdown)
 
-        self.refresh_button = QPushButton("Refresh")
+        self.refresh_button = QPushButton("Refresh Cameras")
+        self.refresh_button.setFixedHeight(40)
         self.refresh_button.clicked.connect(self.refresh_cameras)
         top_layout.addWidget(self.refresh_button)
         self.layout.addLayout(top_layout)
 
         # Video display label
         self.video_label = QLabel()
+        self.video_label.setFixedSize(500, 300)  # Smaller camera feed
+        self.video_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.addWidget(self.video_label)
 
-        # Capture button
-        self.capture_button = QPushButton("Capture High-Quality Image")
+        # Buttons layout
+        button_layout = QHBoxLayout()
+
+        self.capture_button = QPushButton("Capture Image")
+        self.capture_button.setFixedHeight(50)
         self.capture_button.clicked.connect(self.capture_image)
-        self.layout.addWidget(self.capture_button)
+        button_layout.addWidget(self.capture_button)
 
-        # Generate Recipe button
         self.recipe_button = QPushButton("Generate Recipe")
+        self.recipe_button.setFixedHeight(50)
         self.recipe_button.clicked.connect(self.generate_recipe)
-        self.layout.addWidget(self.recipe_button)
+        button_layout.addWidget(self.recipe_button)
 
-        # Recipe display text area
-        self.recipe_text = QTextEdit()
-        self.recipe_text.setReadOnly(True)
-        self.layout.addWidget(self.recipe_text)
+        self.layout.addLayout(button_layout)
+
+        # Scrollable area for recipe boxes
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.recipe_container = QWidget()
+        self.recipe_layout = QVBoxLayout(self.recipe_container)
+        self.recipe_layout.setContentsMargins(10, 10, 10, 10)
+        self.recipe_layout.setSpacing(10)
+        self.scroll_area.setWidget(self.recipe_container)
+        self.layout.addWidget(self.scroll_area)
 
         # Timer for updating video feed
         self.timer = QTimer()
@@ -207,12 +250,8 @@ class WebcamCaptureApp(QMainWindow):
         self.change_camera(0)
 
     def get_available_cameras(self):
-        """
-        Detect available cameras on the system.
-        Returns a list of camera names (e.g., 'Camera 0', 'Camera 1').
-        """
         camera_names = []
-        for index in range(10):  # Check up to 10 camera indices
+        for index in range(10):
             cap = cv2.VideoCapture(index)
             if cap.isOpened():
                 camera_names.append(f"Camera {index}")
@@ -220,38 +259,20 @@ class WebcamCaptureApp(QMainWindow):
         return camera_names if camera_names else ["No Cameras Available"]
 
     def refresh_cameras(self):
-        """
-        Refresh the list of available cameras and update the dropdown.
-        """
         self.camera_dropdown.clear()
         self.camera_dropdown.addItems(self.get_available_cameras())
         print("Camera list refreshed.")
 
     def change_camera(self, index):
-        """
-        Switch to the selected camera and set resolution to the maximum supported resolution.
-        """
         self.current_camera_index = index
         if self.cap:
             self.cap.release()
         self.cap = cv2.VideoCapture(self.current_camera_index)
 
         if self.cap.isOpened():
-            # Set resolution to a high value (4K as an example; the camera will fallback if unsupported)
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
-
-            # Verify the resolution
-            width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-            height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            print(
-                f"Camera {self.current_camera_index} resolution set to: {width}x{height}"
-            )
-
-            # Resize the QLabel to match the camera's resolution
-            self.video_label.setFixedSize(width, height)
-
-            self.timer.start(30)  # 30 ms interval
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
+            self.timer.start(30)
         else:
             self.timer.stop()
             self.video_label.clear()
@@ -261,7 +282,6 @@ class WebcamCaptureApp(QMainWindow):
         if self.cap and self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
-                # Convert to RGB for display
                 rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 height, width, _ = rgb_image.shape
                 q_image = QImage(
@@ -274,32 +294,38 @@ class WebcamCaptureApp(QMainWindow):
         if self.cap and self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
-                # Generate a unique filename using timestamp
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 self.captured_filename = (
                     f"captured_image_camera_{self.current_camera_index}_{timestamp}.jpg"
                 )
-
-                # Save the high-quality image with maximum JPEG quality
-                encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 100]  # 100% JPEG quality
-                success = cv2.imwrite(self.captured_filename, frame, encode_param)
+                success = cv2.imwrite(self.captured_filename, frame)
                 if success:
                     print(
-                        f"High-quality image captured and saved as {self.captured_filename}"
+                        f"Image captured and saved as {self.captured_filename}"
                     )
                 else:
-                    print(f"Failed to save the image.")
+                    print("Failed to save the image.")
 
     def generate_recipe(self):
-        """
-        Call the get_recipes function and display the output in the text area.
-        """
         try:
-            recipes = get_recipes()  # Replace this with the actual implementation
-            self.recipe_text.clear()
-            self.recipe_text.append("Generated Recipes:\n")
+            recipes = get_recipes()
+            # Clear previous recipes
+            for i in reversed(range(self.recipe_layout.count())):
+                widget = self.recipe_layout.takeAt(i).widget()
+                if widget:
+                    widget.deleteLater()
+
+            # Display each recipe in its own box
             for recipe in recipes:
-                self.recipe_text.append(f"- {recipe}")
+                recipe_box = QTextEdit()
+                recipe_box.setText(recipe)
+                recipe_box.setReadOnly(True)
+                recipe_box.setFixedHeight(100)
+                recipe_box.setStyleSheet(
+                    "border: 1px solid #ccc; border-radius: 5px; padding: 5px; background-color: #000000;"
+                )
+                self.recipe_layout.addWidget(recipe_box)
+
             print("Recipes displayed.")
         except Exception as e:
             print(f"Error generating recipes: {e}")
