@@ -1,4 +1,4 @@
-# Cheesehacks2.0
+# Fridge2Fork
 
 This project is a full-stack application designed to identify ingredients in a fridge from a live video feed, generate recipes based on the identified ingredients, and recommend those recipes to the user.
 
