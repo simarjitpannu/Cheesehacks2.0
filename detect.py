@@ -100,7 +100,7 @@ def get_recipes():
         from google.cloud import vision
         from google.oauth2 import service_account
 
-        credentials = service_account.Credentials.from_service_account_file("./fit-network-441921-b6-9f9a9a0ee66c.json")
+        credentials = service_account.Credentials.from_service_account_file("./Cheesehacks2.0/fit-network-441921-b6-948aa79c1f80.json")
         client = vision.ImageAnnotatorClient(credentials=credentials)
 
         with open(path_to_image, "rb") as image_file:
@@ -150,8 +150,9 @@ def get_recipes():
 
         return lab
     
-    image_path_capture = "./captured_image_camera_0_hq.jpg"
+    image_path_capture = "./Cheesehacks2.0/milkeggs.jpg"
     items = get_ingredient_list(image_path_capture)
+    items = ["bread","cheese","chicken", "bagel", "ranch"]
     generated = generation_function(items)
     final_string_ouput = ""
     for text in generated:
@@ -284,11 +285,18 @@ class WebcamCaptureApp(QMainWindow):
             if ret:
                 rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 height, width, _ = rgb_image.shape
-                q_image = QImage(
-                    rgb_image.data, width, height, QImage.Format.Format_RGB888
-                )
+                q_image = QImage(rgb_image.data, width, height, QImage.Format.Format_RGB888)
                 pixmap = QPixmap.fromImage(q_image)
-                self.video_label.setPixmap(pixmap)
+
+                # Scale the pixmap to fit the QLabel while maintaining aspect ratio
+                self.video_label.setPixmap(
+                    pixmap.scaled(
+                        self.video_label.width(),
+                        self.video_label.height(),
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+                )
 
     def capture_image(self):
         if self.cap and self.cap.isOpened():
