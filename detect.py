@@ -11,9 +11,22 @@ from PyQt6.QtWidgets import (
     QWidget,
     QComboBox,
     QHBoxLayout,
+    QTextEdit,
 )
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtCore import QTimer
+
+# Placeholder for get_recipes function, which will be imported in your actual implementation
+def get_recipes():
+    """
+    Simulate getting recipes based on the captured image.
+    Replace this placeholder with your actual recipe generation logic.
+    """
+    return [
+        "Recipe 1: Scrambled Eggs and Toast",
+        "Recipe 2: Omelette with Cheese",
+        "Recipe 3: French Toast with Milk",
+    ]
 
 
 class WebcamCaptureApp(QMainWindow):
@@ -21,7 +34,7 @@ class WebcamCaptureApp(QMainWindow):
         super().__init__()
 
         # Set up the main window
-        self.setWindowTitle("Webcam Capture App with Unique Filenames and Refresh")
+        self.setWindowTitle("Webcam Capture App with Recipe Generator")
         self.setGeometry(100, 100, 800, 600)
 
         # Initialize OpenCV video capture
@@ -53,6 +66,16 @@ class WebcamCaptureApp(QMainWindow):
         self.capture_button = QPushButton("Capture High-Quality Image")
         self.capture_button.clicked.connect(self.capture_image)
         self.layout.addWidget(self.capture_button)
+
+        # Generate Recipe button
+        self.recipe_button = QPushButton("Generate Recipe")
+        self.recipe_button.clicked.connect(self.generate_recipe)
+        self.layout.addWidget(self.recipe_button)
+
+        # Recipe display text area
+        self.recipe_text = QTextEdit()
+        self.recipe_text.setReadOnly(True)
+        self.layout.addWidget(self.recipe_text)
 
         # Timer for updating video feed
         self.timer = QTimer()
@@ -131,17 +154,33 @@ class WebcamCaptureApp(QMainWindow):
             if ret:
                 # Generate a unique filename using timestamp
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = (
+                self.captured_filename = (
                     f"captured_image_camera_{self.current_camera_index}_{timestamp}.jpg"
                 )
 
                 # Save the high-quality image with maximum JPEG quality
                 encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 100]  # 100% JPEG quality
-                success = cv2.imwrite(filename, frame, encode_param)
+                success = cv2.imwrite(self.captured_filename, frame, encode_param)
                 if success:
-                    print(f"High-quality image captured and saved as {filename}")
+                    print(
+                        f"High-quality image captured and saved as {self.captured_filename}"
+                    )
                 else:
                     print(f"Failed to save the image.")
+
+    def generate_recipe(self):
+        """
+        Call the get_recipes function and display the output in the text area.
+        """
+        try:
+            recipes = get_recipes()  # Replace this with the actual implementation
+            self.recipe_text.clear()
+            self.recipe_text.append("Generated Recipes:\n")
+            for recipe in recipes:
+                self.recipe_text.append(f"- {recipe}")
+            print("Recipes displayed.")
+        except Exception as e:
+            print(f"Error generating recipes: {e}")
 
     def closeEvent(self, event):
         if self.cap:
