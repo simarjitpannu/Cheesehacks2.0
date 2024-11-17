@@ -1,0 +1,6 @@
+opencv-python
+PyQt6
+transformers
+google-cloud-vision
+google-auth
+flax
